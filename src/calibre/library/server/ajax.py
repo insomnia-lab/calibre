@@ -100,6 +100,7 @@ class AjaxServer(object):
 
         # Metadata for books
         connect('ajax_book', base_href+'/book/{book_id}', self.ajax_book)
+        connect('ajax_book_add', base_href+'/book_add', self.ajax_book_add)
         connect('ajax_books', base_href+'/books', self.ajax_books)
 
         # The list of top level categories
@@ -193,6 +194,21 @@ class AjaxServer(object):
             data['_series_sort_'] = series
 
         return data, mi.last_modified
+
+    @Endpoint(set_last_modified=False)
+    def ajax_book_add(self, book_file):
+        from calibre.utils.config import prefs
+        from calibre.library.cli import command_add
+        book_file_name = ''
+        tmp_dir = tempfile.mkdtemp()
+        tmp_file = os.path.join(tmp_dir, book_file_name)
+        with open(tmp_file, 'w+') as f:
+            while True:
+                f.write(book_file.file.read(8192))
+                if not data:
+                    break
+        command_add(tmp_file, prefs['library_path'])
+        return {}
 
     @Endpoint(set_last_modified=False)
     def ajax_book(self, book_id, category_urls='true', id_is_uuid='false',
