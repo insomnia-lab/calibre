@@ -195,9 +195,11 @@ class AjaxServer(object):
             data['_series_sort_'] = series
 
         return data, mi.last_modified
-
-    def ajax_page_book_add(self)
+        
+    @Endpoint(set_last_modified=False)
+    def ajax_page_book_add(self):
         return """
+        <!DOCTYPE html>
          <html><body>
             <h2>Upload a file</h2>
             <form action="upload" method="post" enctype="multipart/form-data">
