@@ -196,7 +196,8 @@ class AjaxServer(object):
 
         return data, mi.last_modified
 
-    def ajax_page_book_add(self)
+    @Endpoint(set_last_modified=False)
+    def ajax_page_book_add(self):
         return """
          <html><body>
             <h2>Upload a file</h2>
