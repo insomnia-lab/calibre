@@ -216,7 +216,9 @@ class AjaxServer(object):
     
     @Endpoint(set_last_modified=False)
     def ajax_book_add(self, book_file):
-        out = """<html>
+        out = """
+        <!DOCTYPE html>
+        <html>
         <body>
             myFile length: %s<br />
             myFile filename: %s<br />
