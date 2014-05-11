@@ -229,11 +229,11 @@ class AjaxServer(object):
         #return {}
         size = 0
         while True:
-            data = myFile.file.read(8192)
+            data = book_file.file.read(8192)
             if not data:
                 break
             size += len(data)
-        return out % (size, myFile.filename, myFile.content_type)
+        return out % (size, book_file.filename, book_file.content_type)
         upload.exposed = True
 
     @Endpoint(set_last_modified=False)
