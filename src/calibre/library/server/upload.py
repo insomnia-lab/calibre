@@ -44,15 +44,15 @@ class Endpoint(object):  # {{{
     def __call__(eself, func):
 
         def do(self, *args, **kwargs):
-            if 'json' not in eself.mimetype:
-                sort_val = None
-                cookie = cherrypy.request.cookie
-                if eself.sort_cookie_name in cookie:
-                    sort_val = cookie[eself.sort_cookie_name].value
-                kwargs[eself.sort_kwarg] = sort_val
-
-            # Remove AJAX caching disabling jquery workaround arg
-            kwargs.pop('_', None)
+#            if 'json' not in eself.mimetype:
+ #               sort_val = None
+#                cookie = cherrypy.request.cookie
+ #               if eself.sort_cookie_name in cookie:
+#                    sort_val = cookie[eself.sort_cookie_name].value
+ #               kwargs[eself.sort_kwarg] = sort_val
+#
+ #           # Remove AJAX caching disabling jquery workaround arg
+#            kwargs.pop('_', None)
 
             ans = func(self, *args, **kwargs)
             cherrypy.response.headers['Content-Type'] = eself.mimetype
