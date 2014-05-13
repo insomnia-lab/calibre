@@ -1,19 +1,14 @@
 #!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
-
 import operator, os, json, re, time
 from binascii import hexlify, unhexlify
 from collections import OrderedDict
-
 import cherrypy
-
 from calibre.constants import filesystem_encoding, config_dir
-from calibre import (isbytestring, force_unicode, fit_image,
-        prepare_string_for_xml, sanitize_file_name2)
+from calibre import (isbytestring, force_unicode, fit_image, prepare_string_for_xml, sanitize_file_name2)
 from calibre.utils.filenames import ascii_filename
 from calibre.utils.config import prefs, JSONConfig
 from calibre.utils.icu import sort_key
@@ -24,25 +19,22 @@ from calibre.library.field_metadata import category_icon_map
 from calibre.library.server.utils import quote, unquote
 from calibre.db.categories import Tag
 from calibre.ebooks.metadata.sources.identify import urls_from_identifiers
-
-
+from calibre.library.cli import command_add, do_add,get_db
+from calibre.utils.config import prefs
+import tempfile
 def utf8(x):  # {{{
     if isinstance(x, unicode):
         x = x.encode('utf-8')
     return x
 # }}}
-
 class Endpoint(object):  # {{{
     'Manage encoding, mime-type, last modified, cookies, etc.'
-
     def __init__(self, mimetype='text/html; charset=utf-8', sort_type='category'):
         self.mimetype = mimetype
         self.sort_type = sort_type
         self.sort_kwarg = sort_type + '_sort'
         self.sort_cookie_name = 'calibre_browse_server_sort_'+self.sort_type
-
     def __call__(eself, func):
-
         def do(self, *args, **kwargs):
 #            if 'json' not in eself.mimetype:
  #               sort_val = None
@@ -53,7 +45,6 @@ class Endpoint(object):  # {{{
 #
  #           # Remove AJAX caching disabling jquery workaround arg
 #            kwargs.pop('_', None)
-
             ans = func(self, *args, **kwargs)
             cherrypy.response.headers['Content-Type'] = eself.mimetype
             updated = self.db.last_modified()
@@ -61,20 +52,17 @@ class Endpoint(object):  # {{{
                 self.last_modified(max(updated, self.build_time))
             ans = utf8(ans)
             return ans
-
         do.__name__ = func.__name__
-
         return do
 # }}}
-
 class UploadServer(object):
-
+        
     def add_routes(self, connect):
         base_href = '/upload'
         connect('upload_form', base_href+'/form', self.upload_form)
         connect('upload_bay', base_href+'/bay', self.upload_bay)
-
         #self.icon_map = JSONConfig('gu"i').get('tags_browser_category_icons', {})
+    
     @Endpoint()    
     def upload_form(self):
         return """<!DOCTYPE html>
@@ -96,6 +84,7 @@ class UploadServer(object):
         </body>
         </html>
         """
+        
         #from calibre.utils.config import prefs
         #from calibre.library.cli import command_add
         #book_file_name = ''
@@ -108,14 +97,30 @@ class UploadServer(object):
         #            break
         #command_add(tmp_file, prefs['library_path'])
         #return {}
+        tmp_bay_path="/tmp/calibre_bay"
+        
+        #create tmp directory for bay if not exists
+        try:
+           os.mkdir(tmp_bay_path)
+        except OSError as err:
+           pass
+        else:
+           print "Created tmp directory: "+tmp_bay_path
+        
+        #create tmp file
+        tmpFile=tempfile.mkstemp("",book_file.filename+"_","/tmp/calibre_bay")
+        
+        tmpFileHandler=tmpFile[0]
+        
+        #copy file in tmp folder
         size = 0
         while True:
             data = book_file.file.read(8192)
             if not data:
                 break
+            os.write(tmpFileHandler,data)
             size += len(data)
+        #add book to library
+        command_add([tmpFile[1]], self.opts.with_library)
         return out % (size, book_file.filename, book_file.content_type)
         upload.exposed = True
-
-    
-
