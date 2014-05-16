@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>..:: calibre upload ::..</title>
+    <link rel="icon" type="image/x-icon" href="http://calibre-ebook.com/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+   <body>
+      <h2>Upload a file</h2>
+      <form name="file_upload" action="bay" method="post" enctype="multipart/form-data">
+         <label for="file">File: </label>
+         <input id="file" type="file" name="book_file">
+         <br>
+         <label for="author">Author: </label>
+         <input id="author" type="text" name="book_author">
+         <br>
+         <label for="author">Isbn: </label>
+         <input id="isbn" type="text" name="book_isbn">
+         <br>
+         <input type="submit" value="Submit">
+      </form>
+   </body>
+</html>
