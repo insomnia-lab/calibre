@@ -41,13 +41,12 @@ class UploadServer(object):
     
     #retrive html template from resource folder
     def upload_template(self):
-
-        if not hasattr(self, '__browse_template__') or \
+        if not hasattr(self, '__upload_form_template__') or \
                 self.opts.develop:
-            self.__browse_template__ = \
+            self.__upload_form_template__ = \
                 P('content_server/upload/form_bootstrap.html', data=True).decode('utf-8')
         
-        ans = self.__browse_template__
+        ans = self.__upload_form_template__
         ans = ans.replace('{prefix}', self.opts.url_prefix)
         return ans
     
@@ -83,27 +82,30 @@ class UploadServer(object):
         #create tmp file
         tmpFile=tempfile.mkstemp("",book_file.filename+"_","/tmp/calibre_bay")
         
-        tmpFileHandler=tmpFile[0]
-        
         #copy file in tmp folder
         size = 0
         while True:
             data = book_file.file.read(8192)
             if not data:
                 break
-            os.write(tmpFileHandler,data)
+            os.write(tmpFile[0],data)
             size += len(data)
-        
+       
         #add book to library
         
         #   indirect way
         #   using command_add(list command_line_args, string library_path)
         #command_add([tmpFile[1]], self.opts.with_library)
+        
         #   direct way   
         #   using do_add
         #   do_add(db, paths, one_book_per_directory, recurse, add_duplicates, otitle, oauthors, oisbn, otags, oseries, oseries_index, ocover)
-        
         db = self.db
         do_add(db,[tmpFile[1]],False,False,False,book_file.filename,[book_author],None,["web_uploaded"],book_isbn,None,None)
-        return out % (size, book_file.filename, book_file.content_type,book_file.filename,[book_author])
-        upload.exposed = True
+        
+        ans = out % (size, book_file.filename, book_file.content_type,book_file.filename,[book_author])
+        
+        os.close(tmpFile[0])
+        os.remove(tmpFile[1])
+        
+        return ans
