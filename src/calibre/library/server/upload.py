@@ -50,24 +50,39 @@ class UploadServer(object):
         ans = ans.replace('{prefix}', self.opts.url_prefix)
         return ans
     
+    #retrive html template from resource folder
+    def response_template(self, affermative):
+        if affermative:
+            if not hasattr(self, '__affermative_response_template__') or \
+                    self.opts.develop:
+                self.__affermative_response_template__ = \
+                    P('content_server/upload/affermative_response.html', data=True).decode('utf-8')
+            
+            ans = self.__affermative_response_template__
+        else:
+            if not hasattr(self, '__negative_response_template__') or \
+                    self.opts.develop:
+                self.__negative_response_template__ = \
+                    P('content_server/upload/negative_response.html', data=True).decode('utf-8')
+            
+            ans = self.__negative_response_template__
+        
+        ans = ans.replace('{prefix}', self.opts.url_prefix)
+        return ans
+    
     @Endpoint()    
     def upload_form(self):        
         return self.upload_template()
     
     @Endpoint()
-    def upload_bay(self, book_file, book_author, book_isbn):
-        out = """
-        <!DOCTYPE html>
-        <html>
-        <body>
-            myFile length: %s<br />
-            myFile filename: %s<br />
-            myFile mime-type: %s<br />
-            myFile title: %s<br />
-            myFile authors: %s
-        </body>
-        </html>
-        """
+    def upload_bay(self, book_file=None, book_author=None, book_isbn=None):
+        
+        if book_file == None:
+           html_ans = self.response_template(False)
+           html_ans = html_ans.replace("{message}","<b>Upload failed:</b>  No file received")
+           return html_ans
+        
+        html_ans = self.response_template(True)
         
         tmp_bay_path="/tmp/calibre_bay"
         
@@ -103,9 +118,12 @@ class UploadServer(object):
         db = self.db
         do_add(db,[tmpFile[1]],False,False,False,book_file.filename,[book_author],None,["web_uploaded"],book_isbn,None,None)
         
-        ans = out % (size, book_file.filename, book_file.content_type,book_file.filename,[book_author])
+        html_ans = html_ans.replace('{file_name}',book_file.filename)
+        html_ans = html_ans.replace('{file_author}',book_author)
+        html_ans = html_ans.replace('{file_isbn}',book_isbn)
+        html_ans = html_ans.replace('{file_size}',str(size))
         
         os.close(tmpFile[0])
         os.remove(tmpFile[1])
         
-        return ans
+        return html_ans
