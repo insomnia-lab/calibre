@@ -38,3 +38,26 @@ calibre is a result of the efforts of many volunteers from all over the world.
 If you find it useful, please consider contributing to support its development.
 [Donate to support calibre development](http://calibre-ebook.com/donate).
 
+Debian dependency
+----------------
+libicu-dev
+libsqlite3-dev
+libchm-dev
+libmagickwand-dev
+libpodofo-dev
+python-qt4-dev
+sip-dev
+pyqt4-dev-tools
+python-dateutil
+libqt4-private-dev
+libusb-1.0-0-dev
+libmtp-dev
+python-lxml
+python-mechanize
+python-beautifulsoup
+python-imaging
+python-apsw
+python-cssutils
+python-cssselect
+
+
