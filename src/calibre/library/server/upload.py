@@ -94,8 +94,12 @@ class UploadServer(object):
         else:
            print "Created tmp directory: "+tmp_bay_path
         
+        fileName, fileExt = os.path.splitext(book_file.filename)
+        print fileExt
+
         #create tmp file
-        tmpFile=tempfile.mkstemp("",book_file.filename+"_","/tmp/calibre_bay")
+        tmpFile=tempfile.mkstemp(fileExt,fileName+"_","/tmp/calibre_bay")
+        
         
         #copy file in tmp folder
         size = 0
